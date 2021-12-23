@@ -14,19 +14,27 @@
 
 **Splash screen**
 
-![This is a alt text.](Images/splash.jpeg "This is a sample image.")
+
+
+<img src="Images/splash.jpeg" alt="alt text" title="image Title" height="300" width="250"/>
 
 **Drawer screen**
 
-![This is a alt text.](Images/Picture1.png "This is a sample image.")
+
+
+<img src="Images/Picture1.png" alt="alt text" title="image Title" height="300" width="250"/>
 
 **Home screen**
 
-![This is a alt text.](Images/picture3 org.jpeg "This is a sample image.")
+
+
+<img src="Images/picture3org.jpeg" alt="alt text" title="image Title" height="300" width="250"/>
 
 **Posting question**
 
-![This is a alt text.](Images/Picture2.png "This is a sample image.")
+
+
+<img src="Images/Picture2.png" alt="alt text" title="image Title" height="300" width="250"/>
 
 
 
