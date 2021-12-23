@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|end"
                 android:layout_margin="16dp"
-                android:backgroundTint="#881d16"
+                android:backgroundTint="#023498"
                 android:src="@drawable/ic_add"
                 app:fabSize="normal" />
 

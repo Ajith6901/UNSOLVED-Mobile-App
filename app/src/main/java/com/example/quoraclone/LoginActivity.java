@@ -18,6 +18,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -27,61 +28,82 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressDialog loader;
     private FirebaseAuth mAuth;
 
+    private FirebaseAuth.AuthStateListener authStateListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        mAuth=FirebaseAuth.getInstance();
+
+
+        authStateListener=new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user=mAuth.getCurrentUser();
+                if (user!=null){
+                    Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
+                    startActivity(intent);
+                }
+            }
+        };
+
+
 
         question=findViewById(R.id.loginPageQuestion);
         emailEd=findViewById(R.id.loginEmail);
         passworded=findViewById(R.id.loginPassword);
         login=findViewById(R.id.loginInBtn);
         loader=new ProgressDialog(this);
-        mAuth=FirebaseAuth.getInstance();
 
-        question.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent=new Intent(LoginActivity.this,RegistrationActivity.class);
-                startActivity(intent);
-            }
+        question.setOnClickListener(view -> {
+            Intent intent=new Intent(LoginActivity.this,RegistrationActivity.class);
+            startActivity(intent);
         });
 
-        login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String email=emailEd.getText().toString();
-                String password=passworded.getText().toString();
+        login.setOnClickListener(view -> {
+            String email=emailEd.getText().toString();
+            String password=passworded.getText().toString();
 
-                if (TextUtils.isEmpty(email)){
-                    emailEd.setError("Email is required");
-                }
-                if (TextUtils.isEmpty(email)){
-                    passworded.setError("password is required");
-                }
-                else{
-                    loader.setMessage("Login in progress");
-                    loader.setCanceledOnTouchOutside(false);
-                    loader.show();
+            if (TextUtils.isEmpty(email)){
+                emailEd.setError("Email is required");
+            }
+            if (TextUtils.isEmpty(email)){
+                passworded.setError("password is required");
+            }
+            else{
+                loader.setMessage("Login in progress");
+                loader.setCanceledOnTouchOutside(false);
+                loader.show();
 
-                    mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()){
-                                Toast.makeText(LoginActivity.this, "Login is successful logged in as "+mAuth.getCurrentUser().getEmail(), Toast.LENGTH_SHORT).show();
-                                Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }else{
-                                Toast.makeText(LoginActivity.this, "Login Failed"+task.getException().toString(), Toast.LENGTH_SHORT).show();
-                            }
-
+                mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()){
+                            Toast.makeText(LoginActivity.this, "Login is successful logged in as "+mAuth.getCurrentUser().getEmail(), Toast.LENGTH_SHORT).show();
+                            Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }else{
+                            Toast.makeText(LoginActivity.this, "Login Failed"+task.getException().toString(), Toast.LENGTH_SHORT).show();
                         }
-                    });
 
-                }
+                    }
+                });
 
             }
+
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(authStateListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mAuth.removeAuthStateListener(authStateListener);
     }
 }

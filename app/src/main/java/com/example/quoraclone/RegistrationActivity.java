@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -65,146 +66,129 @@ public class RegistrationActivity extends AppCompatActivity {
         mAuth=FirebaseAuth.getInstance();
         loader=new ProgressDialog(this);
 
-        profileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent=new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
-                startActivityForResult(intent,1);
-            }
+        profileImage.setOnClickListener(view -> {
+            Intent intent=new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            startActivityForResult(intent,1);
         });
 
-        question.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(RegistrationActivity.this,LoginActivity.class);
-                startActivity(intent);
-            }
+        question.setOnClickListener(view -> {
+            Intent intent=new Intent(RegistrationActivity.this,LoginActivity.class);  //check here imp error
+            startActivity(intent);
         });
-        registerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String userName = username.getText().toString();
-                String fullName=fullname.getText().toString();
-                String emailText=email.getText().toString();
-                String passwordText=password.getText().toString();
+        registerButton.setOnClickListener(view -> {
+            String userName = username.getText().toString();
+            String fullName=fullname.getText().toString();
+            String emailText=email.getText().toString();
+            String passwordText=password.getText().toString();
 
-                if (TextUtils.isEmpty(userName)){
-                    username.setError("username is required");
-                }
-                if (TextUtils.isEmpty(fullName)){
-                    fullname.setError("fullname is required");
-                }
-                if (TextUtils.isEmpty(emailText)){
-                    email.setError("email is required");
-                }
-                if (TextUtils.isEmpty(passwordText)){
-                    password.setError("password is required");
-                }
-                if (resultUri==null){
-                    Toast.makeText(RegistrationActivity.this, "Profile image is required", Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    loader.setMessage("Registration in progess");
-                    loader.setCanceledOnTouchOutside(false);
-                    loader.show();
+            if (TextUtils.isEmpty(userName)){
+                username.setError("username is required");
+            }
+            if (TextUtils.isEmpty(fullName)){
+                fullname.setError("fullname is required");
+            }
+            if (TextUtils.isEmpty(emailText)){
+                email.setError("email is required");
+            }
+            if (TextUtils.isEmpty(passwordText)){
+                password.setError("password is required");
+            }
+            if (resultUri==null){
+                Toast.makeText(RegistrationActivity.this, "Profile image is required", Toast.LENGTH_SHORT).show();
+            }
+            else{
+                loader.setMessage("Registration in progess");
+                loader.setCanceledOnTouchOutside(false);
+                loader.show();
 
-                    mAuth.createUserWithEmailAndPassword(emailText,passwordText).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (!task.isSuccessful()){
-                                Toast.makeText(RegistrationActivity.this, "Registration is failed" +task.getException().toString(), Toast.LENGTH_SHORT).show();
-                            }else {
-                                onlineuserID=mAuth.getCurrentUser().getUid();
-                                reference = FirebaseDatabase.getInstance().getReference().child("users").child(onlineuserID);
-                                Map hashMap=new HashMap();
-                                hashMap.put("username",userName);
-                                hashMap.put("fullname",fullName);
-                                hashMap.put("id",onlineuserID);
-                                hashMap.put("email",emailText);
-                                reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener() {
-                                    @Override
-                                    public void onComplete(@NonNull Task task) {
-                                        if(task.isSuccessful()){
-                                            Toast.makeText(RegistrationActivity.this, "Details set successfully", Toast.LENGTH_SHORT).show();
+                mAuth.createUserWithEmailAndPassword(emailText,passwordText).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (!task.isSuccessful()){
+                            Toast.makeText(RegistrationActivity.this, "Registration is failed" +task.getException().toString(), Toast.LENGTH_SHORT).show();
+                        }else {
+                            onlineuserID = mAuth.getCurrentUser().getUid();
+                            reference = FirebaseDatabase.getInstance().getReference().child("users").child(onlineuserID);
+                            Map hashMap = new HashMap();
+                            hashMap.put("username", userName);
+                            hashMap.put("fullname", fullName);
+                            hashMap.put("id", onlineuserID);
+                            hashMap.put("email", emailText);
+                            reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener() {
+                                @Override
+                                public void onComplete(@NonNull Task task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(RegistrationActivity.this, "Details set successfully", Toast.LENGTH_SHORT).show();
 
-                                        }else{
-                                            Toast.makeText(RegistrationActivity.this, "Failed tp upload the data" +task.getException().toString(), Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(RegistrationActivity.this, "Failed to upload the data" + task.getException().toString(), Toast.LENGTH_SHORT).show();
 
-
-                                        }
-                                        finish();
-                                        loader.dismiss();
 
                                     }
-                                });
-                                final StorageReference filePath = FirebaseStorage.getInstance().getReference().child("profile images").child(onlineuserID);
-                                Bitmap bitmap=null;
-                                try {
-                                    bitmap= MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(),resultUri);
+                                    finish();
+                                    loader.dismiss();
 
-                                }catch(IOException e){
-                                    e.printStackTrace();
                                 }
-                                ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
-                                bitmap.compress(Bitmap.CompressFormat.JPEG,20,byteArrayOutputStream);
-                                byte[] data =byteArrayOutputStream.toByteArray();
-                                UploadTask uploadTask=filePath.putBytes(data);
+                            });
+                            final StorageReference filePath = FirebaseStorage.getInstance().getReference().child("profile images").child(onlineuserID);
+                            Bitmap bitmap = null;
+                            try {
+                                bitmap = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), resultUri);
 
-                                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                        if (taskSnapshot.getMetadata().getReference()!=null){
-                                            Task<Uri> result=taskSnapshot.getStorage().getDownloadUrl();
-                                            result.addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                                @Override
-                                                public void onSuccess(Uri uri) {
-                                                    String imageUrl =uri.toString();
-                                                    Map hashMap=new HashMap();
-                                                    hashMap.put("profileimageurl",imageUrl);
-                                                    reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task task) {
-                                                            if (task.isSuccessful()){
-                                                                Toast.makeText(RegistrationActivity.this, "Profile image added successfully", Toast.LENGTH_SHORT).show();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 20, byteArrayOutputStream);
+                            byte[] data = byteArrayOutputStream.toByteArray();
+                            UploadTask uploadTask = filePath.putBytes(data);
 
-                                                            }
-                                                            else{
-                                                                Toast.makeText(RegistrationActivity.this, "Process failed"+task.getException().toString(), Toast.LENGTH_SHORT).show();
+                            uploadTask.addOnSuccessListener(taskSnapshot -> {
+                                if (taskSnapshot.getMetadata().getReference() != null) {
+                                    Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                                    result.addOnSuccessListener(uri -> {
+                                        String imageUrl = uri.toString();
+                                        Map hashMap1 = new HashMap();
+                                        hashMap1.put("profileimageurl", imageUrl);
+                                        reference.updateChildren(hashMap1).addOnCompleteListener(new OnCompleteListener() {
+                                            @Override
+                                            public void onComplete(@NonNull Task task1) {
+                                                if (task1.isSuccessful()) {
+                                                    Toast.makeText(RegistrationActivity.this, "Profile image added successfully", Toast.LENGTH_SHORT).show();
 
-                                                            }
-                                                        }
-                                                    });
-                                                    finish();
-
+                                                } else {
+                                                    Toast.makeText(RegistrationActivity.this, "Process failed" + task1.getException().toString(), Toast.LENGTH_SHORT).show();
 
                                                 }
-                                            });
-                                        }
-                                    }
-                                });
-                                Intent intent=new Intent(RegistrationActivity.this,HomeActivity.class);
-                                startActivity(intent);
-                                finish();
-                                loader.dismiss();
+                                            }
+                                        });
+                                        finish();
 
 
+                                    });
+                                }
+                            });
+                            Intent intent = new Intent(RegistrationActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                            finish();
+                            loader.dismiss();
 
-                            }
 
                         }
-                    });
-                }
 
-
+                    }
+                });
             }
+
+
         });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==1 && resultCode==RESULT_OK && data!=null){
+        if(requestCode==1 && resultCode==RESULT_OK && data !=null){
             resultUri=data.getData();
             profileImage.setImageURI(resultUri);
         }
