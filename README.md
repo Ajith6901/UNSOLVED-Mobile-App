@@ -16,25 +16,25 @@
 
 
 
-<img src="Images/splash.jpeg" alt="alt text" title="image Title" height="300" width="250"/>
+<img src="Images/splash.jpeg" alt="alt text" title="image Title" height="400" width="220"/>
 
 **Drawer screen**
 
 
 
-<img src="Images/Picture1.png" alt="alt text" title="image Title" height="300" width="250"/>
+<img src="Images/Picture1.png" alt="alt text" title="image Title" height="400" width="220"/>
 
 **Home screen**
 
 
 
-<img src="Images/picture3org.jpeg" alt="alt text" title="image Title" height="300" width="250"/>
+<img src="Images/picture3 org.jpeg" alt="alt text" title="image Title" height="400" width="220"/>
 
 **Posting question**
 
 
 
-<img src="Images/Picture2.png" alt="alt text" title="image Title" height="300" width="250"/>
+<img src="Images/Picture2.png" alt="alt text" title="image Title" height="400" width="220"/>
 
 
 
